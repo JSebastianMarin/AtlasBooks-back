@@ -42,3 +42,35 @@ export const createList = async (req, res) => {
     }
   };
   
+  /**
+ * Get a single book information by its id from the data base
+ * @param {*} req
+ * @param {*} res
+ */
+export const getList = async (req, res) => {
+  try {
+    const idList = req.params.id;
+    const query_list = await pool.query("SELECT * FROM BOOK_LIST WHERE id = $1", [
+      idList,
+    ]);
+
+    // Si no se encuentra la lista, devolver un error 404
+    if (query_list.rows.length === 0) {
+      return res.status(404).json({ error: "List not found" });
+    }
+
+    
+    //Send response
+    res.status(201).send({
+      idList,
+      title: query_list.rows[0].title,
+      descriptionL: query_list.rows[0].descriptionl,
+      dateL: query_list.rows[0].datel,
+      idUserCreator: query_list.rows[0].idusercreator,
+      isPublic: query_list.rows[0].ispublic,
+    });
+  } catch (error) {
+    console.error("Error creating book:", error);
+    res.status(500).send({ error: "Error getting the book" });
+  }
+};
